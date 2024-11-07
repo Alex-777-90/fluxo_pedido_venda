@@ -6,6 +6,9 @@ const viewsRouter = require('./router/viewsRouter');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware para parsing de JSON
+app.use(express.json());
+
 // Configurar a pasta 'public' para arquivos estáticos (CSS, JS, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 

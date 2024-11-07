@@ -1,6 +1,7 @@
 // viewsRouter.js
 const express = require('express');
 const path = require('path');
+const pdfController = require('../controllers/pdfController');
 
 const router = express.Router();
 
@@ -18,5 +19,9 @@ router.get('/login', (req, res) => {
 router.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../views', 'admin.html'));
 });
+
+
+// Rota para envio do PDF
+router.post('/send-pdf', pdfController.sendPdf);
 
 module.exports = router;
