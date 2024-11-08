@@ -6,17 +6,20 @@ exports.sendPdf = async (req, res) => {
 
     // Configuração do nodemailer
     const transporter = nodemailer.createTransport({
-        service: 'outlook',
-        auth: {
-            user: process.env.EMAIL_USER, // Carrega a variável de ambiente
-            pass: process.env.EMAIL_PASS  // Carrega a variável de ambiente
-        }
+       
+            host: "sandbox.smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+              user: "3731d11965bdea",
+              pass: "0482307161f152"
+            }
+         
     });
 
     // Opções do e-mail
     const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: 'destinatario@exemplo.com', // Ajuste de acordo com seu uso
+        to: 'alxnvn@yahoo.com.br', // Ajuste de acordo com seu uso
         subject: 'Pedido de Venda',
         text: 'Segue em anexo o pedido de venda em PDF.',
         attachments: [
