@@ -6,7 +6,7 @@ let listaPrecosData;
 let icmsSTData;
 //// Variáveis globais 
 
-// Função para carregar os JSONs
+// Função para carregar os JSONs teste
 fetch('/data/clientes.json')
     .then(response => response.json())
     .then(data => {
