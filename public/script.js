@@ -1,54 +1,59 @@
-//// Variaveis globais 
+//// Variáveis globais 
 let clientesData;
 let promocaoData;
 let foraDeLinhaData;
 let listaPrecosData;
 let icmsSTData;
-//// Variaveis globais 
+//// Variáveis globais 
 
-
-// Inicio -- busca dos dados -------------------------------------------------------------------------------------////////
-
-// Função para carregar o JSON de clientes
+// Função para carregar os JSONs
 fetch('/data/clientes.json')
     .then(response => response.json())
     .then(data => {
         clientesData = data;
     });
 
-// Função para carregar o JSON de promoções
 fetch('/data/Promocao.json')
     .then(response => response.json())
     .then(data => {
         promocaoData = data;
     });
 
-// Função para carregar o JSON de fora de linha
 fetch('/data/Fora de linha.json')
     .then(response => response.json())
     .then(data => {
         foraDeLinhaData = data;
     });
 
-// Função para carregar o JSON de lista de preços
 fetch('/data/Lista-precos.json')
-.then(response => response.json())
-.then(data => {
-    listaPrecosData = data;
-});
+    .then(response => response.json())
+    .then(data => {
+        listaPrecosData = data;
+    });
 
-// Função para carregar o JSON de ICMS-ST
 fetch('/data/ICMS-ST.json')
-.then(response => response.json())
-.then(data => {
-    icmsSTData = data;
-});
+    .then(response => response.json())
+    .then(data => {
+        icmsSTData = data;
+    });
 
-// Fim -- busca dos dados -------------------------------------------------------------------------------------////////
+// Função para formatar o CNPJ com máscara
+function formatarCNPJ(cnpj) {
+    return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+}
 
+// Função para formatar o CEP com máscara
+function formatarCEP(cep) {
+    return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+}
 
-
-// Inicio -- Tratamento dos dados -------------------------------------------------------------------------------------////////
+// Função para ajustar o CNPJ com zeros à esquerda, se necessário
+function ajustarCNPJ(cnpj) {
+    while (cnpj.length < 14) {
+        cnpj = '0' + cnpj;
+    }
+    return cnpj;
+}
 
 // Função para buscar o produto em promoção
 function buscarPromocao(cod) {
@@ -80,26 +85,51 @@ function buscarListaPrecos(cod) {
     return null;
 }
 
-
-// Fim -- Tratamento dos dados -------------------------------------------------------------------------------------////////
-
-
-
-// Inicio -- Bloco dados do clientes-------------------------------------------------------------------------------------////////
-
 // Função para buscar os dados do cliente pelo CNPJ
 function buscarCliente(cnpj) {
+    // Ajusta o CNPJ com zeros à esquerda
+    cnpj = ajustarCNPJ(cnpj);
+
     for (let i = 1; i < clientesData.length; i++) {
-        if (clientesData[i][1].toString() === cnpj) {
+        let cnpjCliente = ajustarCNPJ(clientesData[i][1].toString());
+        if (cnpjCliente === cnpj) {
             return clientesData[i];
         }
     }
     return null;
- }
+}
+
+
+
+// Função para verificar se o CNPJ é composto apenas de zeros
+function cnpjInvalido(cnpj) {
+    return /^0+$/.test(cnpj);
+}
+
 
 // Função para preencher os campos ao digitar o CNPJ
 document.getElementById('cnpj').addEventListener('blur', function () {
-    let cnpj = this.value;
+    
+    let cnpj = this.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+    // Verifica se o campo está vazio
+    if (cnpj === '') {
+            return; // Sai da função sem buscar dados
+    }
+
+    // Verifica se o CNPJ é inválido (apenas zeros)
+    if (cnpjInvalido(cnpj)) {
+        alert("CNPJ inválido.");
+        this.value = ''; // Limpa o campo CNPJ
+        return; // Sai da função sem buscar dados
+    }
+
+
+    cnpj = ajustarCNPJ(cnpj);
+
+    // Aplica a máscara ao CNPJ
+    this.value = formatarCNPJ(cnpj);
+
     let cliente = buscarCliente(cnpj);
     if (cliente) {
         document.getElementById('razao_social').value = cliente[3];
@@ -109,7 +139,11 @@ document.getElementById('cnpj').addEventListener('blur', function () {
         document.getElementById('bairro').value = cliente[9];
         document.getElementById('cidade').value = cliente[10];
         document.getElementById('uf').value = cliente[11];
-        document.getElementById('cep').value = cliente[12];
+
+        // Aplica a máscara ao CEP
+        let cep = cliente[12].toString();
+        document.getElementById('cep').value = formatarCEP(cep);
+
         document.getElementById('telefone').value = cliente[4];
         document.getElementById('email').value = cliente[6];
         document.getElementById('email_fiscal').value = cliente[7];
@@ -118,15 +152,10 @@ document.getElementById('cnpj').addEventListener('blur', function () {
         document.getElementById('group').value = cliente[19];
         document.getElementById('transp').value = cliente[20];
         document.getElementById('codgroup').value = cliente[18];
-      
     } else {
         alert("Cliente não encontrado.");
     }
 });
-
-// Fim -- Bloco dados do clientes-------------------------------------------------------------------------------------////////
-
-
 
 // Função para zerar os campos da tabela "DADOS PEDIDO"
 function zerarCamposPedido() {
@@ -145,14 +174,13 @@ function zerarCamposPedido() {
 // Adiciona o evento para zerar os campos quando o tipo de pedido for alterado
 document.getElementById('tipo_pedido').addEventListener('change', zerarCamposPedido);
 
-
 // Função para atualizar o total com imposto de todas as linhas
 function atualizarTotalComImposto() {
     let total = 0;
     const linhas = document.querySelectorAll('#dadosPedido tbody tr');
     
     linhas.forEach(tr => {
-        const cell = tr.cells[8]?.querySelector('input'); // Verifica se cell[8] e input existem
+        const cell = tr.cells[8]?.querySelector('input');
         if (cell && cell.value) {
             const cellValue = cell.value.replace("R$", "").replace(/\./g, "").replace(",", ".");
             const valor = parseFloat(cellValue);
@@ -171,7 +199,7 @@ function atualizarTotalVolumes() {
     const linhas = document.querySelectorAll('#dadosPedido tbody tr');
 
     linhas.forEach(tr => {
-        const cell = tr.cells[1]?.querySelector('input'); // Verifica se cell[1] e input existem
+        const cell = tr.cells[1]?.querySelector('input');
         if (cell && cell.value) {
             const quantidade = parseFloat(cell.value.replace(",", "."));
             if (!isNaN(quantidade)) {
@@ -189,8 +217,8 @@ function atualizarTotalProdutos() {
     const linhas = document.querySelectorAll('#dadosPedido tbody tr');
 
     linhas.forEach(tr => {
-        const quantidadeCell = tr.cells[1]?.querySelector('input'); // Verifica se cell[1] e input existem
-        const valorUnitarioCell = tr.cells[6]?.querySelector('input'); // Verifica se cell[6] e input existem
+        const quantidadeCell = tr.cells[1]?.querySelector('input');
+        const valorUnitarioCell = tr.cells[6]?.querySelector('input');
         if (quantidadeCell && valorUnitarioCell && quantidadeCell.value && valorUnitarioCell.value) {
             const quantidade = parseFloat(quantidadeCell.value.replace(",", "."));
             const valorUnitario = parseFloat(valorUnitarioCell.value.replace("R$", "").replace(/\./g, "").replace(",", "."));
@@ -205,19 +233,15 @@ function atualizarTotalProdutos() {
 
 // Função para adicionar uma nova linha à tabela
 document.getElementById('adicionarLinha').addEventListener('click', function () {
-
     let tbody = document.querySelector('#dadosPedido tbody');
     let tr = document.createElement('tr');
 
-
-
     for (let i = 0; i < 9; i++) {
-
         let td = document.createElement('td');
         let input = document.createElement('input');
         input.type = 'text';
-        input.style.width = '100%'
-        input.style.boxSizing = 'border-box'
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
 
         if (i === 0) {
             input.addEventListener('blur', function () {
@@ -255,31 +279,27 @@ document.getElementById('adicionarLinha').addEventListener('click', function () 
             });
         }
 
-
         td.appendChild(input);
         tr.appendChild(td);
     }
     tbody.appendChild(tr);
-    atualizarTotalComImposto(); // Atualiza o total após adicionar uma linha
-    atualizarTotalVolumes(); // Atualiza o total de volumes após adicionar uma linha
-    atualizarTotalProdutos(); // Atualiza o total de produtos após adicionar uma linha
+    atualizarTotalComImposto();
+    atualizarTotalVolumes();
+    atualizarTotalProdutos();
 });
 
 // Função para remover a última linha da tabela
 document.getElementById('excluirLinha').addEventListener('click', function () {
-
     let tbody = document.querySelector('#dadosPedido tbody');
     if (tbody.rows.length > 0) {
         tbody.deleteRow(tbody.rows.length - 1);
-        atualizarTotalComImposto(); // Atualiza o total após remover uma linha
-        atualizarTotalVolumes(); // Atualiza o total de volumes após remover uma linha
-        atualizarTotalProdutos(); // Atualiza o total de produtos após remover uma linha
+        atualizarTotalComImposto();
+        atualizarTotalVolumes();
+        atualizarTotalProdutos();
     } else {
         alert("Nenhuma linha para remover");
     }
-
 });
-
 
 // Função para verificar duplicatas de código na tabela
 function verificarCodigoDuplicado(codigo) {
@@ -293,40 +313,27 @@ function verificarCodigoDuplicado(codigo) {
         }
     });
 
-    // Se o código aparecer mais de uma vez, é uma duplicata
     return contador > 1;
 }
-
-
-console.log(verificarCodigoDuplicado())
-
 
 // Função para preencher os dados da linha com os cálculos baseados no IPI e R$ Unitário
 function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) { 
     let cells = tr.getElementsByTagName('td');
     let codProduto = cells[0].querySelector('input').value;
 
-     // Verifica se o código já existe na tabela antes de prosseguir com o preenchimento
-     if (verificarCodigoDuplicado(codProduto)) {
+    if (verificarCodigoDuplicado(codProduto)) {
         alert(`O código "${codProduto}" já existe na lista. Por favor, digite outro código.`);
-        cells[0].querySelector('input').value = ''; // Limpa o campo de código
-        return; // Sai da função para evitar o preenchimento
+        cells[0].querySelector('input').value = '';
+        return;
     }
-
-    console.log(verificarCodigoDuplicado())
 
     let codGroup = document.getElementById('codgroup').value;
    
     for (let i = 0; i < cells.length; i++) {
-        // Verifica se o índice é diferente de 0 e 1
-        
-         
         if (i !== 0 && i !== 1) {
-            // Se for diferente de 0 ou 1, adiciona readonly ao input
             cells[i].querySelector('input').setAttribute('readonly', true);
         }
     }
-
 
     let codigoConcatenado = codGroup ? `${codGroup}-${codProduto}` : codProduto;
     let precoEncontrado = listaPrecosData.find(item => item[0] === codigoConcatenado);
@@ -348,7 +355,11 @@ function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) {
         cells[6].querySelector('input').value = Number(produtoPromocao[5]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     } else {
         let precoEncontrado = listaPrecosData.find(item => item[0] === codigoConcatenado);
-        cells[6].querySelector('input').value = Number(precoEncontrado[11]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        if (precoEncontrado) {
+            cells[6].querySelector('input').value = Number(precoEncontrado[11]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        } else {
+            cells[6].querySelector('input').value = '';
+        }
     }
 
     if (codProduto) {
@@ -386,10 +397,10 @@ function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) {
                 let valorComIPI = valorUnitario * (1 + ipi);
                 let valorTotal = valorComIPI * quantidade;
                 cells[8].querySelector('input').value = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                
-                atualizarTotalComImposto(); // Atualiza o total sempre que o valor total da linha mudar
-                atualizarTotalVolumes(); // Atualiza o total de volumes sempre que a quantidade mudar
-                atualizarTotalProdutos(); // Atualiza o total de produtos sempre que a quantidade ou o valor unitário mudar
+
+                atualizarTotalComImposto();
+                atualizarTotalVolumes();
+                atualizarTotalProdutos();
             } else {
                 cells[8].querySelector('input').value = '';
             }
@@ -400,12 +411,46 @@ function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) {
 
     cells[1].querySelector('input').addEventListener('input', function() {
         atualizarValorTotal();
-        atualizarTotalVolumes(); // Atualiza o total de volumes ao modificar a quantidade
-        atualizarTotalProdutos(); // Atualiza o total de produtos ao modificar a quantidade
+        atualizarTotalVolumes();
+        atualizarTotalProdutos();
     });
     cells[6].querySelector('input').addEventListener('input', function() {
         atualizarValorTotal();
-        atualizarTotalProdutos(); // Atualiza o total de produtos ao modificar o valor unitário
+        atualizarTotalProdutos();
     });
-    cells[8].querySelector('input').addEventListener('input', atualizarTotalComImposto); // Atualiza o total se "TOTAL R$" for modificado
+    cells[8].querySelector('input').addEventListener('input', atualizarTotalComImposto);
 }
+
+const btcnpjGeneration = document.getElementById('button_cnpj');
+
+btcnpjGeneration.addEventListener("click", () => {
+    
+    // Obtém o elemento de entrada do CNPJ
+    const inputCNPJ = document.getElementById('cnpj');
+
+    // Define o foco no campo de entrada
+    inputCNPJ.focus();
+
+});
+
+btPdfGeneration.addEventListener("click", async () => {
+    const razaoSocial = document.getElementById('razao_social').value;
+    const codCliente = document.getElementById('cod_cliente').value;
+    const pdfBase64 = await html2pdf().set(options).from(content).outputPdf('datauristring');
+
+    try {
+        const response = await fetch('/send-pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pdfBase64, razaoSocial, codCliente }) // Envia os dados necessários
+        });
+
+        const result = await response.text();
+        alert(result);
+    } catch (error) {
+        console.error('Erro ao enviar o PDF:', error);
+        alert('Erro ao enviar o PDF por e-mail');
+    }
+});

@@ -1,3 +1,15 @@
+ /* Definição da animação */
+@keyframes animationButtonSend {
+    0% {
+        transform: rotateZ(10deg);
+    }
+    100% {
+        transform: rotateZ(-10deg);
+    }
+}
+ 
+ 
+
  /* Estilo Geral */
  body {
     font-family: Arial, sans-serif;
@@ -53,6 +65,14 @@
     flex: 1;
     min-width: 150px;
 }
+
+#button_pdf:hover {
+    background: linear-gradient(90deg,#156405 0%,#b7ecdc 100%);
+    color:#022c0b;
+    font-weight: bold;
+
+}
+
 .section {
     margin-top: 20px;
 }

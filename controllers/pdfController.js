@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 
 exports.sendPdf = async (req, res) => {
 
-    const { pdfBase64 } = req.body;
+    const { pdfBase64, razaoSocial, codCliente } = req.body; // Recebe os dados necessários
 
     if (!pdfBase64) {
         return res.status(400).send('Nenhum PDF foi recebido.');
@@ -35,15 +35,18 @@ exports.sendPdf = async (req, res) => {
         });
 
 
+        const subject = `Pedido de Venda ${razaoSocial} - ${codCliente}`;
+        const fileName = `Pedido de Venda ${razaoSocial} - ${codCliente}.pdf`;
+
         // Configurando o e-mail
         await transporter.sendMail({
             from: 'alxnvn@hotmail.com',
             to: 'alxnvn@yahoo.com.br',
-            subject: 'PDF Gerado',
+            subject: subject,
             text: 'Segue em anexo o PDF gerado.',
             attachments: [
                 {
-                    filename: 'pedido_venda.pdf',
+                    filename: fileName,
                     content: pdfBase64.split("base64")[1],
                     encoding: 'base64'
                 }

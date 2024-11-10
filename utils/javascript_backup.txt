@@ -280,14 +280,43 @@ document.getElementById('excluirLinha').addEventListener('click', function () {
 
 });
 
+
+// Função para verificar duplicatas de código na tabela
+function verificarCodigoDuplicado(codigo) {
+    const linhas = document.querySelectorAll('#dadosPedido tbody tr');
+    let contador = 0;
+
+    linhas.forEach(tr => {
+        const inputCodigo = tr.cells[0]?.querySelector('input');
+        if (inputCodigo && inputCodigo.value === codigo) {
+            contador++;
+        }
+    });
+
+    // Se o código aparecer mais de uma vez, é uma duplicata
+    return contador > 1;
+}
+
+
+console.log(verificarCodigoDuplicado())
+
+
 // Função para preencher os dados da linha com os cálculos baseados no IPI e R$ Unitário
 function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) { 
     let cells = tr.getElementsByTagName('td');
     let codProduto = cells[0].querySelector('input').value;
+
+     // Verifica se o código já existe na tabela antes de prosseguir com o preenchimento
+     if (verificarCodigoDuplicado(codProduto)) {
+        alert(`O código "${codProduto}" já existe na lista. Por favor, digite outro código.`);
+        cells[0].querySelector('input').value = ''; // Limpa o campo de código
+        return; // Sai da função para evitar o preenchimento
+    }
+
+    console.log(verificarCodigoDuplicado())
+
     let codGroup = document.getElementById('codgroup').value;
    
-
-
     for (let i = 0; i < cells.length; i++) {
         // Verifica se o índice é diferente de 0 e 1
         
