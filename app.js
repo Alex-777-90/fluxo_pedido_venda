@@ -25,6 +25,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Usar o router para as views
 app.use('/', viewsRouter);
 
+app.get('/teste', (req, res) => {
+    res.send('Rota de teste funcionando!');
+});
+
 // Iniciar o servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
