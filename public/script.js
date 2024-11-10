@@ -7,7 +7,7 @@ let icmsSTData;
 //// Variáveis globais 
 
 // Função para carregar os JSONs teste
-fetch('/data/clientes.json')
+fetch('/data/cliente.json')
     .then(response => response.json())
     .then(data => {
         clientesData = data;
