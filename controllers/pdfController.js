@@ -16,8 +16,8 @@ exports.sendPdf = async (req, res) => {
             port: 587, // ou 587 para TLS
             secure: false, // true para 465, false para outras portas
             auth: {
-                user: "kidszonekidszonemail@gmail.com",
-                pass: 'yscb pzxb vvoa eftk'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
 
             },
             tls: {

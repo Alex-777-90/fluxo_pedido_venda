@@ -10,42 +10,41 @@ let icmsSTData;
 // Inicio -- busca dos dados -------------------------------------------------------------------------------------////////
 
 // Função para carregar o JSON de clientes
-fetch('Clientes.json')
+fetch('/data/clientes.json')
     .then(response => response.json())
     .then(data => {
         clientesData = data;
     });
 
 // Função para carregar o JSON de promoções
-fetch('Promocao.json')
+fetch('/data/Promocao.json')
     .then(response => response.json())
     .then(data => {
         promocaoData = data;
     });
 
 // Função para carregar o JSON de fora de linha
-fetch('Fora de linha.json')
+fetch('/data/Fora de linha.json')
     .then(response => response.json())
     .then(data => {
         foraDeLinhaData = data;
     });
 
 // Função para carregar o JSON de lista de preços
-fetch('Lista-precos.json')
+fetch('/data/Lista-precos.json')
 .then(response => response.json())
 .then(data => {
     listaPrecosData = data;
 });
 
 // Função para carregar o JSON de ICMS-ST
-fetch('ICMS-ST.json')
+fetch('/data/ICMS-ST.json')
 .then(response => response.json())
 .then(data => {
     icmsSTData = data;
 });
 
 // Fim -- busca dos dados -------------------------------------------------------------------------------------////////
-
 
 
 
@@ -105,7 +104,7 @@ document.getElementById('cnpj').addEventListener('blur', function () {
     if (cliente) {
         document.getElementById('razao_social').value = cliente[3];
         document.getElementById('ie').value = cliente[2];
-        document.getElementById('representante').value = cliente[15];
+        document.getElementById('representante').value = `${cliente[15]} - ${cliente[16]}`;
         document.getElementById('endereco').value = cliente[8];
         document.getElementById('bairro').value = cliente[9];
         document.getElementById('cidade').value = cliente[10];
@@ -114,7 +113,6 @@ document.getElementById('cnpj').addEventListener('blur', function () {
         document.getElementById('telefone').value = cliente[4];
         document.getElementById('email').value = cliente[6];
         document.getElementById('email_fiscal').value = cliente[7];
-        document.getElementById('contato').value = cliente[13];
         document.getElementById('cod_cliente').value = cliente[17];
         document.getElementById('pay').value = cliente[14];
         document.getElementById('group').value = cliente[19];
@@ -128,6 +126,24 @@ document.getElementById('cnpj').addEventListener('blur', function () {
 
 // Fim -- Bloco dados do clientes-------------------------------------------------------------------------------------////////
 
+
+
+// Função para zerar os campos da tabela "DADOS PEDIDO"
+function zerarCamposPedido() {
+    const linhas = document.querySelectorAll('#dadosPedido tbody tr');
+    linhas.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        inputs.forEach(input => input.value = ''); // Zera o valor de cada input
+    });
+
+    // Atualiza os totais após zerar os campos
+    atualizarTotalComImposto();
+    atualizarTotalVolumes();
+    atualizarTotalProdutos();
+}
+
+// Adiciona o evento para zerar os campos quando o tipo de pedido for alterado
+document.getElementById('tipo_pedido').addEventListener('change', zerarCamposPedido);
 
 
 // Função para atualizar o total com imposto de todas as linhas
@@ -193,11 +209,15 @@ document.getElementById('adicionarLinha').addEventListener('click', function () 
     let tbody = document.querySelector('#dadosPedido tbody');
     let tr = document.createElement('tr');
 
+
+
     for (let i = 0; i < 9; i++) {
 
         let td = document.createElement('td');
         let input = document.createElement('input');
         input.type = 'text';
+        input.style.width = '100%'
+        input.style.boxSizing = 'border-box'
 
         if (i === 0) {
             input.addEventListener('blur', function () {
@@ -234,6 +254,8 @@ document.getElementById('adicionarLinha').addEventListener('click', function () 
                 }
             });
         }
+
+
         td.appendChild(input);
         tr.appendChild(td);
     }
@@ -260,10 +282,22 @@ document.getElementById('excluirLinha').addEventListener('click', function () {
 
 // Função para preencher os dados da linha com os cálculos baseados no IPI e R$ Unitário
 function preencherLinha(tr, listaPrecos, promocao = null, ufCliente) { 
-
     let cells = tr.getElementsByTagName('td');
     let codProduto = cells[0].querySelector('input').value;
     let codGroup = document.getElementById('codgroup').value;
+   
+
+
+    for (let i = 0; i < cells.length; i++) {
+        // Verifica se o índice é diferente de 0 e 1
+        
+         
+        if (i !== 0 && i !== 1) {
+            // Se for diferente de 0 ou 1, adiciona readonly ao input
+            cells[i].querySelector('input').setAttribute('readonly', true);
+        }
+    }
+
 
     let codigoConcatenado = codGroup ? `${codGroup}-${codProduto}` : codProduto;
     let precoEncontrado = listaPrecosData.find(item => item[0] === codigoConcatenado);
