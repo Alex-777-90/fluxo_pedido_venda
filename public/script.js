@@ -6,7 +6,7 @@ let listaPrecosData;
 let icmsSTData;
 //// Variáveis globais 
 
-import { btPdfGeneration, options, content } from './pdf.js';
+import { btPdfGeneration, options, content } from '/pdf.js';
 
 // Função para carregar os JSONs teste
 fetch('/data/cliente.json')

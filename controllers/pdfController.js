@@ -1,8 +1,6 @@
 const nodemailer = require('nodemailer');
 
 
-
-
 exports.sendPdf = async (req, res) => {
 
     console.log('Usuário de e-mail:', process.env.EMAIL_USER);
