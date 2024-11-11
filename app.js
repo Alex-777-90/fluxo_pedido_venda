@@ -1,11 +1,10 @@
 // app.js
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const viewsRouter = require('./router/viewsRouter');
 
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+
 
 
 const app = express();
