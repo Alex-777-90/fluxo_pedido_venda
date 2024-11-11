@@ -1,9 +1,13 @@
 const nodemailer = require('nodemailer');
 
+
+
+
 exports.sendPdf = async (req, res) => {
 
     console.log('Usuário de e-mail:', process.env.EMAIL_USER);
     console.log('Senha de e-mail:', process.env.EMAIL_PASS);
+
 
     const { pdfBase64, razaoSocial, codCliente } = req.body; // Recebe os dados necessários
 

@@ -6,6 +6,8 @@ let listaPrecosData;
 let icmsSTData;
 //// Variáveis globais 
 
+import { btPdfGeneration, options, content } from './pdf.js';
+
 // Função para carregar os JSONs teste
 fetch('/data/cliente.json')
     .then(response => response.json())
@@ -432,6 +434,9 @@ btcnpjGeneration.addEventListener("click", () => {
     inputCNPJ.focus();
 
 });
+
+
+
 
 btPdfGeneration.addEventListener("click", async () => {
     const razaoSocial = document.getElementById('razao_social').value;
