@@ -1,27 +1,29 @@
-// Exporta a constante `options` para ser usada em outros arquivos
-export const options = {
-    margin: [0, 0, 0, 0],
-    filename: '', // valor padrão, será sobrescrito na função
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-    pagebreak: { mode: 'avoid-all' }
-};
 
-// Exporta `btPdfGeneration` para ser usado em outros arquivos
-export const btPdfGeneration = document.getElementById('button_pdf');
+const btPdfGeneration = document.getElementById('button_pdf');
 
-// Exporta a constante `content` para uso externo
-export const content = document.querySelector('.container');
 
 btPdfGeneration.addEventListener("click", async () => {
 
+
     const elementsToHide = document.querySelectorAll('.no-print');
     elementsToHide.forEach(el => el.style.display = 'none');
-
+     
+    const content = document.querySelector('.container');
     const razaoSocial = document.getElementById('razao_social').value;
     const codCliente = document.getElementById('cod_cliente').value;
-    options.filename = `Pedido de Venda ${razaoSocial} - ${codCliente}.pdf`; // Atualiza o filename
+    
+    const filename = `Pedido de Venda ${razaoSocial} - ${codCliente}.pdf`; // Atualiza o filename
 
+
+    const options = {
+        margin: [0, 0, 0, 0],
+        filename: filename , // valor padrão, será sobrescrito na função
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        pagebreak: { mode: 'avoid-all' }
+    };
+
+    
     html2pdf().set(options).from(content).save().then(async () => {
         alert('PDF criado e baixado no downloads');
 
